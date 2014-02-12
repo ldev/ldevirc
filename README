@@ -1,0 +1,10 @@
+Hi,
+
+This ia an Python IRC bot for personal use. At this stage this bot is probably not insteresting for anyone else than me.
+
+Features (as of now)
+ * Auto OP (predefined list)
+ * Yell at people in Norwegian
+ * Perform a traceroute and PRIVMSG it to the user requesting it
+ 
+Developed by Jonas Lindstad @ Lindstad Development
