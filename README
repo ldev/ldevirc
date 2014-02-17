@@ -1,10 +1,23 @@
 Hi,
 
-This ia an Python IRC bot for personal use. At this stage this bot is probably not insteresting for anyone else than me.
+Meet "ldevirc", the dysfunctional child of LDEV. At this stage this IRC bot is probably not insteresting for anyone else than me. Still not doing proper parsing of strings, so there are a bunch of possible exploits.
 
-Features (as of now)
- * Auto OP (predefined list)
+Features (as of now):
+ * Auto OP (static predefined list)
  * Yell at people in Norwegian
- * Perform a traceroute and PRIVMSG it to the user requesting it
+ * Perform a traceroute and PRIVMSG it to the user requesting it. Hangs while doing the trace.
+ 
+Requires:
+ * Python 3.3+
+ * Simplejson-package. (http://undefined.org/python/#simplejson - Check your Linux distro's package manager)
+ 
+Installation procedure:
+ * mkdir --parents ldevirc/{logs,auto-op}
+ * cd ldevirc/
+ * chmod +x development.py
+ * mv config.json.sample config.json
+ * Edit config.json to your liking (e.g. channel to join, nick..)
+ * ./development.py
+ 
  
 Developed by Jonas Lindstad @ Lindstad Development

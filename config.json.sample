@@ -1,0 +1,14 @@
+{
+    "network": "efnet",
+    "server": "your.efnet.server.here",
+    "channel": "#hello-world",
+    "botnick": "buttbot",
+    "port": "6667",
+    "server_encoding": "latin-1",
+    "quit_message": "Closing down the connection",
+    "logging": {
+        "max_file_size": "1000000",
+        "max_number_of_files": "10",
+        "level": "DEBUG"
+    }
+}
