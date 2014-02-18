@@ -49,7 +49,7 @@ from os import path # finding the current script path
 # import urllib2 # URL grabbing
 import simplejson as json # Config parsing
 import re # URL grabbing
-from urllib.request import urlopen # URL grabbing
+from urllib import request # URL grabbing
 
 
 #
@@ -118,16 +118,18 @@ def signal_handler(signal, frame):
     sys.exit(0)
     
 def grab_title(url):
-    source = urlopen(url).read().decode('utf-8')
+    resource = request.urlopen(url)
+    source = resource.read().decode(resource.headers.get_content_charset())
+    
     match = re.findall(r'<title>(.*)</title>', source)
     if match:
-        irc_cmd('PRIVMSG %s :Tittel: %s' % (config['channel'], match[0]))
+        logger.info('Found title - print to channel')
+        irc_cmd('PRIVMSG %s :(%s)' % (config['channel'], match[0]))
         return match[0]
         # for link, title in match:
         #     print "link %s -> %s" % (link, title)
     else:
         logger.info('No match')
-    
 #
 # PERFORM IRC CONNECTION
 #
@@ -268,7 +270,7 @@ while 1:
     
     # auto OP
     if text.find("JOIN :%s" % config['channel']) !=-1 and text.find(config['botnick']) == -1:
-        auto_op_file = '%s/auto-op/%s_%s' % (working_dir, network.lower(), channel.lower())
+        auto_op_file = '%s/auto-op/%s_%s' % (working_dir, config['network'].lower(), config['channel'].lower())
         logger.debug('Checking auto-op file "%s"' % auto_op_file)
         if path.isfile(auto_op_file):
             with open(auto_op_file) as f:
@@ -289,17 +291,13 @@ while 1:
         traceroute(dest, find_user(text))
         
     # URL title grabber
-    if text.find('http://') != -1 or text.find('https://') != -1:
-        urls = re.findall(r'(https?://\S+)', text)
-        logger.info('Fetching <title> from URL %s' % urls[0])
+    if text.find(config['botnick']) == -1 and (text.find('http://') != -1 or text.find('https://') != -1):
         try:
-            print(grab_title(urls[0]))
+            urls = re.findall(r'(https?://\S+)', text)
+            logger.info('Fetching <title> from URL %s' % urls[0])
         except:
-            logger.info('Failed to fetch <title>. Probably 404/not UTF-8 encoding')
+            logger.info('Failed to fetch <title>*</title>')
+            # e = sys.exc_info()[0]
+            logger.error(sys.exc_info())
+            # print(sys.exc_info())
             pass
-        # irc_cmd('PRIVMSG %s :URL: %s' % (config['channel'], urls[0]))
-        # try:
-        #     grab_title(urls[0])
-        # except:
-        #     pass
-        # ['http://tinyurl.com/blah', 'http://blabla.com']

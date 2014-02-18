@@ -6,6 +6,7 @@ Features (as of now):
  * Auto OP (static predefined list)
  * Yell at people in Norwegian
  * Perform a traceroute and PRIVMSG it to the user requesting it. Hangs while doing the trace.
+ * URL grabber. Grabs <title> from pasted links.
  
 Requires:
  * Python 3.3+
@@ -17,7 +18,7 @@ Installation procedure:
  * chmod +x development.py
  * mv config.json.sample config.json
  * Edit config.json to your liking (e.g. channel to join, nick..)
- * ./development.py
+ * ./main.py
  
  
 Developed by Jonas Lindstad @ Lindstad Development
