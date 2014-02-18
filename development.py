@@ -46,10 +46,10 @@ import sys # for ctrl-c catching
 from platform import platform # Finne linuxversjon etc.
 from os import path # finding the current script path
 
-# import urllib2
-import simplejson as json
-# confstr = urllib2.urlopen("http://yourhost/config.py").read()
-
+# import urllib2 # URL grabbing
+import simplejson as json # Config parsing
+import re # URL grabbing
+from urllib.request import urlopen # URL grabbing
 
 
 #
@@ -117,6 +117,16 @@ def signal_handler(signal, frame):
     time.sleep(1)
     sys.exit(0)
     
+def grab_title(url):
+    source = urlopen(url).read().decode('utf-8')
+    match = re.findall(r'<title>(.*)</title>', source)
+    if match:
+        irc_cmd('PRIVMSG %s :Tittel: %s' % (config['channel'], match[0]))
+        return match[0]
+        # for link, title in match:
+        #     print "link %s -> %s" % (link, title)
+    else:
+        logger.info('No match')
     
 #
 # PERFORM IRC CONNECTION
@@ -277,3 +287,19 @@ while 1:
     if text.find(':!trace') != -1:
         dest = text.split(':!trace')[1].strip()
         traceroute(dest, find_user(text))
+        
+    # URL title grabber
+    if text.find('http://') != -1 or text.find('https://') != -1:
+        urls = re.findall(r'(https?://\S+)', text)
+        logger.info('Fetching <title> from URL %s' % urls[0])
+        try:
+            print(grab_title(urls[0]))
+        except:
+            logger.info('Failed to fetch <title>. Probably 404/not UTF-8 encoding')
+            pass
+        # irc_cmd('PRIVMSG %s :URL: %s' % (config['channel'], urls[0]))
+        # try:
+        #     grab_title(urls[0])
+        # except:
+        #     pass
+        # ['http://tinyurl.com/blah', 'http://blabla.com']

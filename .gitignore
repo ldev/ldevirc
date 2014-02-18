@@ -1,0 +1,7 @@
+# Ignored files
+config.json
+hdbits.py
+test.py
+bully.txt
+auto-op/*
+logs/*
