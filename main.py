@@ -119,13 +119,14 @@ def grab_title(url):
     resource = request.urlopen(url)
     source = resource.read().decode(resource.headers.get_content_charset())
     
-    match = re.findall(r'<title>(.*)</title>', source)
+    match = re.findall(r'<title>(.*?)</title>', source, re.S)
     if match:
-        logger.info('Found title - print to channel')
-        irc_cmd('PRIVMSG %s :(%s)' % (config['channel'], match[0]))
-        return match[0]
+        title = match[0].replace('\n', '').strip()
+        logger.info('titlegrabber: Grabbed title "%s"' % title)
+        irc_cmd('PRIVMSG %s :(%s)' % (config['channel'], title))
+        return title
     else:
-        logger.info('No match')
+        logger.info('titlegrabber: No match for <title></title>')
 
 
 #
@@ -288,12 +289,12 @@ while 1:
         
     # URL title grabber
     if text.find(config['botnick']) == -1 and (text.find('http://') != -1 or text.find('https://') != -1):
+        urls = re.findall(r'(https?://\S+)', text)
         try:
-            urls = re.findall(r'(https?://\S+)', text)
-            logger.info('Fetching <title> from URL %s' % urls[0])
+            logger.info('titlegrabber: Fetching title from %s' % urls[0])
             grab_title(urls[0])
         except:
-            logger.info('Failed to fetch <title>*</title>')
+            logger.info('titlegrabber: Failed to fetch title from %s' % urls[0])
             # e = sys.exc_info()[0]
             logger.error(sys.exc_info())
             # print(sys.exc_info())
