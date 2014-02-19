@@ -55,7 +55,8 @@ from urllib import request # URL grabbing
 #
 # VARIABLES
 #
-version = 'ldevirc 0.1 testing'
+client_name = 'ldevirc'
+version = '0.1a'
 working_dir = path.dirname(path.realpath(__file__)) # no trailing slash
 
 # load configuration file
@@ -70,17 +71,14 @@ with open('%s/config.json' % working_dir) as data_file:
 logger_file = '%s/logs/%s_%s' % (working_dir, config['network'].lower(), config['channel'].lower())
 logger = logging.getLogger(version)
 logger_level = logging.getLevelName(config['logging']['level'])
-# logger.setLevel(logging.DEBUG)
 logger.setLevel(logger_level)
-handler = logging.handlers.RotatingFileHandler(logger_file, 'a', maxBytes=config['logging']['max_file_size'], backupCount=config['logging']['max_number_of_files'], encoding="utf-8")
-# handler.setLevel(logging.DEBUG)
+handler = logging.handlers.RotatingFileHandler(logger_file, 'a', maxBytes=config['logging']['max_file_size'], backupCount=config['logging']['max_number_of_files'], encoding=config['server_encoding'])
 handler.setLevel(logger_level)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s') # left "%(name)" out on purpose
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 logger.info('%s started' % version)
-
 
 
 #
@@ -126,15 +124,13 @@ def grab_title(url):
         logger.info('Found title - print to channel')
         irc_cmd('PRIVMSG %s :(%s)' % (config['channel'], match[0]))
         return match[0]
-        # for link, title in match:
-        #     print "link %s -> %s" % (link, title)
     else:
         logger.info('No match')
+
+
 #
 # PERFORM IRC CONNECTION
 #
-
-# register signal handling (ctrl+c)
 signal.signal(signal.SIGINT, signal_handler)
 print ('\r\npress ctrl+c to close the connection to the server')
 
@@ -195,10 +191,9 @@ while 1:
         irc_cmd(('PONG %s' % (text.split()[1])))
         
         
-        
     # Join on kick
     if text.find('KICK %s %s' % (config['channel'], config['botnick'])):
-        if text.split(' ')[1] == 'KICK' and text.split(' ')[2] == channel and text.split(' ')[3] == config['botnick']:
+        if text.split(' ')[1] == 'KICK' and text.split(' ')[2] == config['channel'] and text.split(' ')[3] == config['botnick']:
             logger.warn(text)
             time.sleep(1)
             irc_cmd("JOIN %s" % config['channel'])
@@ -219,8 +214,10 @@ while 1:
         
     # VERSION - The version and type of the client
     if text.find('PRIVMSG %s :\u0001VERSION\u0001' % (config['botnick'])) != -1:
-        logger.debug('NOTICE %s :\u0001VERSION %s:%s\u0001' % (find_user(text), version, platform()))
-        irc_cmd('NOTICE %s :\u0001VERSION %s:%s\u0001' % (find_user(text), version, platform()))
+        # logger.debug('NOTICE %s :\u0001VERSION %s:%s\u0001' % (find_user(text), version, platform()))
+        # irc_cmd('NOTICE %s :\u0001VERSION %s:%s\u0001' % (find_user(text), version, platform()))
+        logger.info('NOTICE %s :\u0001VERSION %s:%s:%s\u0001' % (find_user(text), client_name, version, platform()))
+        irc_cmd('NOTICE %s :\u0001VERSION %s:%s:%s\u0001' % (find_user(text), client_name, version, platform()))
     
     # CLIENTINFO - Dynamic master index of what a client knows
     if text.find('PRIVMSG %s :\u0001CLIENTINFO\u0001' % (config['botnick'])) != -1:
@@ -237,8 +234,7 @@ while 1:
         logger.debug('NOTICE %s :\u0001TIME %s\u0001' % timestamp())
         irc_cmd('NOTICE %s :\u0001TIME %s\u0001' % timestamp())
 
-
-        
+   
     #
     # CAP - capabilities
     # http://www.leeh.co.uk/draft-mitchell-irc-capabilities-02.html
@@ -295,6 +291,7 @@ while 1:
         try:
             urls = re.findall(r'(https?://\S+)', text)
             logger.info('Fetching <title> from URL %s' % urls[0])
+            grab_title(urls[0])
         except:
             logger.info('Failed to fetch <title>*</title>')
             # e = sys.exc_info()[0]

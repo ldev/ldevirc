@@ -20,5 +20,8 @@ Installation procedure:
  * Edit config.json to your liking (e.g. channel to join, nick..)
  * ./main.py
  
+auto-op:
+ * Seperate files for each channel goes in auto-op/ directory. One host on each line.
+ 
  
 Developed by Jonas Lindstad @ Lindstad Development
